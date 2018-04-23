@@ -43,13 +43,15 @@ function imp = importSummary(folder,filename)
             imp.(fname{1}) = tempdata{1}(:,n1);
         end
     end
+
 %     assignin('base','imp',imp)
+    imp.Group = imp.Group-min(imp.Group)+1;
     
     try
         fieldsExp = {'JSC','VOC','MPP','FF','PCE'};
         axExp = {'Current Density (mA/cm²)','Voltage (V)','Power (mW/cm²)','Fill Factor (%)', 'Efficiency (%)'};
-        limitsExp = {[0,12],[0,0.7],[0,3],[0,60],[0,3]};
-%         limitsExp = {[0,1],[0,0.5],[0,0.5],[0,100],[0,0.25]};
+%         limitsExp = {[0,0.2],[0,0.5],[0,0.1],[0,100],[0,0.1]};
+        limitsExp = {[0,20],[0,1.2],[0,15],[0,100],[0,15]};
         
         screen_size = get(0, 'ScreenSize');
 %         linewidth  = 2;
@@ -62,7 +64,14 @@ function imp = importSummary(folder,filename)
         
         for n2=1:length(fieldsExp)
             subplot(1,length(fieldsExp),n2);
-            gscatter(imp.Group,imp.(fieldsExp{n2}),imp.Group,cOrderStat,'o');
+            gscatterLines = gscatter(imp.Group(imp.VOC>0.6&imp.FF<80&imp.Repetition>4),imp.(fieldsExp{n2})(imp.VOC>0.6&imp.FF<80&imp.Repetition>4),imp.Group(imp.VOC>0.6&imp.FF<80&imp.Repetition>4),cOrderStat,'o');
+%             gscatter(imp.Group(strcmp(imp.ScanDirection,'forward')),imp.(fieldsExp{n2})(strcmp(imp.ScanDirection,'forward')),imp.Group(strcmp(imp.ScanDirection,'forward')),cOrderStat,'o');
+%             hold all
+%             gscatter(imp.Group(~strcmp(imp.ScanDirection,'forward')),imp.(fieldsExp{n2})(~strcmp(imp.ScanDirection,'forward')),imp.Group(~strcmp(imp.ScanDirection,'forward')),cOrderStat,'x');
+
+            for n3 = 1:length(gscatterLines)
+                gscatterLines(n3).LineWidth = 2;
+            end
             set(gca,'XLim',[0.5 length(unique(imp.Description,'stable'))+0.5])
             set(gca,'XTick',1:length(unique(imp.Description,'stable')))
             set(gca,'YLim',limitsExp{n2})
@@ -74,6 +83,7 @@ function imp = importSummary(folder,filename)
         end
         saveas(figExp,[folder,'/',filename,'.fig'])
         saveas(figExp,[folder,'/',filename,'.jpg'])
+        saveas(figExp,[folder,'/',filename,'.pdf'])
     catch e
         disp(e.message)
         return;

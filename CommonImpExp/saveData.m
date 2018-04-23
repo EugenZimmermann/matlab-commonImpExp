@@ -157,10 +157,13 @@ function [status, fullPath] = saveData(varargin)
             OutputOrder = {'Time','J','I','V','Temperature'};
         case 'VOC'
             ext = '.voc';
-            OutputOrder = {'Time','mpp','V','J','I'};
+            OutputOrder = {'Time','V','J','I'};
         case 'VOCT'
             ext = '.voct';
-            OutputOrder = {'Time','mpp','V','J','I','Temperature'};
+            OutputOrder = {'Time','V','J','I','Temperature'};
+        case {'lightDecay','darkDecay'}
+            ext = '.ivd';
+            OutputOrder = {'Time','V','J','I'};
         otherwise
             disp(['implement ',input.header.Type,' into saveData!'])
             status = 0;
